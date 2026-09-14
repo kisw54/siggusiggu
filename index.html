@@ -13,25 +13,56 @@
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
 
-        const playerImg = new Image();
-        playerImg.src = "character.png"; // 같은 폴더의 character.png 로드
+        // 1. 방향별 이미지 객체 생성 및 로드
+        const images = {
+            down: new Image(),
+            up: new Image(),
+            left: new Image(),
+            right: new Image()
+        };
 
-        let player = { x: 180, y: 180, size: 48, speed: 4 };
+        images.down.src = "down.png";
+        images.up.src = "up.png";
+        images.left.src = "left.png";
+        images.right.src = "right.png";
+
+        // 캐릭터 데이터 (direction: 현재 바라보는 방향 저장)
+        let player = { 
+            x: 180, 
+            y: 180, 
+            size: 48, 
+            speed: 4,
+            direction: "down" 
+        };
+        
         let keys = {};
 
         window.addEventListener("keydown", (e) => keys[e.key] = true);
         window.addEventListener("keyup", (e) => keys[e.key] = false);
 
         function update() {
-            if (keys["ArrowUp"] && player.y > 0) player.y -= player.speed;
-            if (keys["ArrowDown"] && player.y < canvas.height - player.size) player.y += player.speed;
-            if (keys["ArrowLeft"] && player.x > 0) player.x -= player.speed;
-            if (keys["ArrowRight"] && player.x < canvas.width - player.size) player.x += player.speed;
+            // 키 입력에 따라 위치 이동 및 바라보는 방향(direction) 업데이트
+            if (keys["ArrowUp"]) {
+                if (player.y > 0) player.y -= player.speed;
+                player.direction = "up";
+            } else if (keys["ArrowDown"]) {
+                if (player.y < canvas.height - player.size) player.y += player.speed;
+                player.direction = "down";
+            } else if (keys["ArrowLeft"]) {
+                if (player.x > 0) player.x -= player.speed;
+                player.direction = "left";
+            } else if (keys["ArrowRight"]) {
+                if (player.x < canvas.width - player.size) player.x += player.speed;
+                player.direction = "right";
+            }
         }
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(playerImg, player.x, player.y, player.size, player.size);
+            
+            // 2. 현재 direction에 맞는 이미지를 선택하여 그리기
+            const currentImg = images[player.direction];
+            ctx.drawImage(currentImg, player.x, player.y, player.size, player.size);
         }
 
         function gameLoop() {
@@ -40,7 +71,8 @@
             requestAnimationFrame(gameLoop);
         }
         
-        playerImg.onload = function() {
+        // 정면 이미지가 로딩 완료되면 루프 실행
+        images.down.onload = function() {
             gameLoop();
         };
     </script>
